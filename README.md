@@ -15,6 +15,7 @@ I also tried an ensemble of these models, which yielded 94.86% accuracy.
 
 # [Demo](https://drive.google.com/file/d/1_4bvgIwhTv0_P-BhrG4WdfYNN8W-1ZaX/view)
 
-<iframe width="766" height="431" src="https://drive.google.com/file/d/1_4bvgIwhTv0_P-BhrG4WdfYNN8W-1ZaX/view"
-frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;
-picture-in-picture" allowfullscreen></iframe>
+![image](https://drive.google.com/uc?export=view&id=1_4bvgIwhTv0_P-BhrG4WdfYNN8W-1ZaX)
+
+
+
