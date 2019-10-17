@@ -8,8 +8,13 @@ Here's an example how the data looks (*each class takes three-rows*):
 # Models & performance
 
 Final average accuracy on test dataset: 94.22% (over 5 repetitions)
+
 This has been obtained by training for 100 epochs and saving the models with lowest validation losses.
 
 I also tried an ensemble of these models, which yielded 94.86% accuracy.
 
 # [Demo](https://drive.google.com/file/d/1_4bvgIwhTv0_P-BhrG4WdfYNN8W-1ZaX/view)
+
+<iframe width="766" height="431" src="https://drive.google.com/file/d/1_4bvgIwhTv0_P-BhrG4WdfYNN8W-1ZaX/view"
+frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope;
+picture-in-picture" allowfullscreen></iframe>
