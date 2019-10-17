@@ -11,7 +11,7 @@ fgbg = cv2.createBackgroundSubtractorMOG2(
     varThreshold=2,
     detectShadows=False)
 
-def camera_record(source):
+def camera_record(source, model_path):
     global frame_num, fgbg
     classes = ['T-shirt', 'Trouser', 'Pullover', 'Dress', 'Coat', 'Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
 
@@ -65,7 +65,7 @@ def camera_record(source):
 
 
 def main():
-  model_path = ''
+  model_path = '../models/model_v5_0.h5'
   camera_record(0, model_path)
 
 
