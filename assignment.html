@@ -1,0 +1,156 @@
+﻿<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>assignment</title>
+  <link rel="stylesheet" href="https://stackedit.io/style.css" />
+</head>
+
+<body class="stackedit">
+  <div class="stackedit__html"><p><em>Jakub Czerny</em><br>
+<em>Fashion MNIST</em></p>
+<hr>
+<p><strong>DEMO:</strong></p>
+<p><a href="https://drive.google.com/file/d/1_4bvgIwhTv0_P-BhrG4WdfYNN8W-1ZaX/view?usp=sharing">Link to demo</a></p>
+<hr>
+<p><strong>Final results:</strong></p>
+<p>94.22% on average over 5 repeated trainings</p>
+<p>94.86% ensemble voting of 5 models</p>
+<hr>
+<p><strong>Repo:</strong></p>
+<p><a href="https://github.com/JakubCzerny/fashion-mnist-assignment/blob/master/README.md">fashion-mnist-assignment</a></p>
+<p><code>cd</code> to project home directory <code>/fashion-mnist-assignment</code></p>
+<p>run <code>jupyter-notebook</code> from there (to make sure the paths &amp; directories work as expected)</p>
+<p>you can find main jupyter notebook in in <code>/my_code/training.ipynb</code> together with python scripts</p>
+<hr>
+<p><strong>Environment</strong></p>
+<p>Python3</p>
+<p>All the experiments were run on Google Colab using GPU</p>
+<p>Requirements: <code>pip install -r requirements.txt</code></p>
+<hr>
+<p><strong>Run demo:</strong></p>
+<p><code>cd</code> to <code>/fashion-mnist-assignment/my_code</code><br>
+Run <code>python camera.py</code></p>
+<hr>
+<p><strong>Data processing &amp; augmentation</strong></p>
+<p>As per usual, I started by exploring the data and checking the classes distribution. This involved understanding the data (I noticed that there’s little padding around the pictures, and the classification ss rather difficult task even for people - only 83.5% accuracy).<br>
+Then, I moved to data preparation - reshaping, split, scaling, adding channel dimension, one-hot encoding labels.</p>
+<p>At first, the preprocessing was just data rescaling to range 0-1. It’s a reasonable choice for the images, being bounded data. I ended up adding only following 3 transformations:</p>
+<ul>
+<li>Width shift  (3px)</li>
+<li>Height shift (3px)</li>
+<li>Horizontal flip</li>
+</ul>
+<p>Although simple, they helped regularize the training (shifts were very small - but since sometimes there was no padding around the objects, the characteristic regions (like the colar on the right picture) could end up being out of the picture. (forced the network to explore more features of objects)</p>
+<p>****<img src="https://lh3.googleusercontent.com/8duNcfDcKXrRBR2pR2-xDWfDpdRWu4cBin9czL8Go5Dw-BBHUUGGAJOqeKoAqKdLooZrmk0GvV0dP8sHm_NN0r-Bnq6uabBvJp8U-RyTUtoS5YfyPN3uYgCR2hzYqUP3jwOqq_Oq" alt=""><strong><img src="https://lh5.googleusercontent.com/L0C2mLdmk3VNLLwDCrYpeNvpVzdBrTTBLfO2dNBZ8qFdqMpDzLN46rdyUj9Zp5g6vFIVV2oCIyAnpGyjO5A2nyYNLtRAKArzzefLKTec0o98AkeV1lyRihfYfHPyZftfkCJ6P2ef" alt=""></strong></p>
+<p>I also tried seemingly reasonable transformations such as:</p>
+<ul>
+<li>
+<p>Rotation</p>
+</li>
+<li>
+<p>Shear</p>
+</li>
+<li>
+<p>Zooming</p>
+</li>
+</ul>
+<p>but all of them led to worse performance. I guess rotation and shearing distorted already pixelated image too much and zooming would cut out too much - could happen that important features from both sides or top/bottom would be lost. I tried these ideas on v1 model - and they would make it difficult to even overfit the data - which might indicate that transformation is not proper for the data.</p>
+<p>Effects of data augmentation:</p>
+<p><strong><img src="https://lh6.googleusercontent.com/tzK1Iqbrp1HECyrf_L57qheiwJY5ioxcdy8PaP48Xm_a3BXB4hDeGi5N6b7UouSSTvO67UwWbMstlr9iWODGfqT_ipADeOBOvDVrzIrozrF6RuMG3zhWkNo36sdr7OEPIgtqkxll" alt=""></strong></p>
+<p>Regardless of whether overfit or early stopped, the model without augmentation performs worse when testing.</p>
+<hr>
+<p><strong>Models</strong></p>
+<p>more in <code>my_code/models.py</code></p>
+<p>My first thought was transfer learning, but since the images were grayscale, it would require some extra steps, such as duplicating the intensity into 3 channels to mimic RGB. Rather dummy idea - more computationally expensive and probably not worth the effort.</p>
+<p>The first model I typically try for images is VGG-like architecture, so I built a simplified version of it <code>model v1</code>.<br>
+Then I manually iterated multiple times increasing the capacity and regularizing it.</p>
+<p><strong>Built models:</strong></p>
+<ul>
+<li>VGG-like (<code>v1</code>, <code>v2</code>, <code>v3</code>, <code>v4</code>)</li>
+</ul>
+<p>All 4 models have pretty much the same backbone - the deeper into the network the more filter the convolutional layers have i.e.<br>
+64 - 64 - 128 - 128 -256 -256</p>
+<p>Key difference: number of dense layers (2 or 3), dropouts, batch normalization, ReLU / LeakyReLU</p>
+<p>Achieved accuracy of ~93.5%</p>
+ <br> 
+<ul>
+<li>Own model (<code>v5</code>)</li>
+</ul>
+<p><strong><img src="https://lh3.googleusercontent.com/FPV-_COgJDAyzF6Hu_XMvc8TEEjaInLl29afcDuKcudMUNcpTSm5WhUpZKjVzlJVzvK_nzNQArKLWhCh83GsQpODpmlFxAGC7T7lwyXQctoiMbolo_bvLUuixtVPgTcFrM41KPaZ" alt=""></strong></p>
+<p><em>Specification:</em></p>
+<ul>
+<li>
+<p>905k parameters - I was trying to keep it lean</p>
+</li>
+<li>
+<p>6 convolutional &amp; 3 dense layers</p>
+</li>
+<li>
+<p>Average of 94.22% accuracy over 5 repetitions (ensemble voting 94.86%)</p>
+</li>
+<li>
+<p>Inference speed: ~100 images/per second using Google Colab CPU (sequentially feeding images one by one) (<a href="https://colab.research.google.com/drive/151805XTDg--dgHb3-AXJCpnWaqRhop_2">Google colab spec</a>)</p>
+</li>
+<li>
+<p>~10Mb model</p>
+</li>
+</ul>
+<br>
+<p><em>Architecture:</em></p>
+<p>It’s been discussed quite a bit in the papers that 3x3 convolutions are usually enough (even for more complicated tasks e.g. semantic seg), while keeping the number of parameters low - so I only built models using 3x3 kernels.</p>
+<p>The network is built up of 3 “convolutional modules” and 3 dense layers.</p>
+<p>Each convolutional module has following units:<br>
+<code>Conv3x3 (64) - BatchNorm - Conv3x3(128) - MaxPool2x2 - Dropout(0.2) - BatchNorm</code></p>
+<p>They are followed by:<br>
+<code>Dense (512) - Dropout(0.5) - Dense (512) - Dropout(0.5) - Dense (10)</code></p>
+<p>Then, all dense layers are further regularized with L2 reg. applied to their weights (very small lambda 1e-5), but should stop weights from getting very big, what in turn improves generalization and prevents overfitting.</p>
+<br>  
+<p><em>Notes:</em></p>
+<p>I got the results by training the models for 100 epochs and saving the once with best validation losses. I repeated that 5 times and calculated average performance on test dataset. I could probably get a bit higher accuracy with hyperparameter optimization (which I implemented the pipeline for - Bayesian optimization), but at some point Google Colab took away my GPU as I was using it too much.</p>
+<p>Even though, the overfitting began already after 30-40 epochs, after trying early stopping, it turned out it was beneficial to keep going and strongly overfit the data.</p>
+<p><strong><img src="https://lh6.googleusercontent.com/TTiCYJjWPkhrxp3fMhG-kWSWY91idUhBnpxpvRixX0DG_r--gaSstWMCQagtp6MqTh6df5JwkmI2oKAQUzr8A8V2RfQBjRCmMzQH0GtUCtbtvXbx8YiLye4FRARyP1iFAH549Ch5" alt=""></strong></p>
+<p>The losses and metrics around 100th epoch. This was not only better on validation but also test dataset. When doing early stopping 5 epochs after the loss hasn’t gone down I would always end up with accuracy in the proximity of 93.5%.</p>
+<p><strong><img src="https://lh3.googleusercontent.com/HZd3zLkl3cVXQ3XjeyrkVERTxNaaVKG1Ia6mlo95n-tJBCjzOo0EZJtmv2O2tuA4fGkZd9FAId8dMtZOJY_YUYRxsuErNZ7KjmQJlcDn2rFS5Hz_smRujoG7ZGTq1A_4OoedKw-s" alt=""></strong></p>
+<p>Evaluation of the trained models <code>v5</code>:</p>
+<p><img src="https://lh6.googleusercontent.com/WPhBsBR1C5eyvwpdllvNPKxLaC5Ud0cRaXe8E8hkHuHR2hdSUl6gf1_Lz56fRmvp8x8cs4L2eEcQHVKjZlQHj5RBWJerieZ5NnfLmvjZh2e75reCNlK2bmtWfY6XyeN39X3NxeON" alt=""></p>
+<p>Since I already had 5 models, I decided to ensemble them by simple voting scheme. I am aware that this kind of strategy works best in case the models have different structures / are of different kinds so that they have different misclassification distribution - making it actually possible to catch them. Nonetheless, there’s been improvement of over 0.6%, and their combination turned out better than any of the models alone. Cool stuff.</p>
+<p><img src="https://lh5.googleusercontent.com/FqHkmTGiarEfCk-btf572OThkwAmb9mHVP5u7SyEyR0T_oUO27OZYSLJ9MF1d82_r0hXcxdk1cOJiOuEcFLYMHQTXGlQr8N15rKrmcs69GUGGhnY5sgTok8sARQWussAcPNDu5w8" alt=""></p>
+<p><em>Future idea:</em></p>
+<p>It could be interesting to collapse t-shirt &amp; pullover &amp; shirt (classes 0,2,6) into one and consider it as 8-class problem, and then build a separate model for discrimination of the three.</p>
+  <br>
+<p>Other models I tried:</p>
+<ul>
+<li>bottleneck ResNet (like ResNet50)  (<code>model v6</code>)</li>
+</ul>
+<p>Model is built of bottleneck modules:<br>
+1x1 conv - keep spatial size but change number of filters, commonly smaller than input<br>
+3x3 conv - classical convolution operation, commonly the same number of filters as above<br>
+1x1 conv - remap the data into original size - number of channels - allows easy residual connection</p>
+<p>Idea behind this structure is to force the network to find more compact representation of the data - thus making it focus on really meaningful properties that carry same amount of information.</p>
+<br>
+<ul>
+<li>simple ResNet (like ResNet18)  (<code>model v7</code>)</li>
+</ul>
+<p>Reminds VGG architecture but with residual connections</p>
+<p>Idea from <a href="https://arxiv.org/pdf/1512.03385.pdf">ResNet</a> paper<br>
+<a href="https://medium.com/@14prakash/understanding-and-implementing-architectures-of-resnet-and-resnext-for-state-of-the-art-image-cc5d0adf648e">Blog post</a> on ResNets</p>
+<p>I didn’t notice improvement, but then I haven’t tried overfitting them as the other ones. They were more computationally demanding.<br>
+Also, that could be because my nets were rather shallow architectures and didn’t benefit much from skip connections.</p>
+<hr>
+<p><strong>Segmentation:</strong></p>
+<p>As for the demo, I created my own segmentation algorithm using mostly openCV. Basic idea was that the object would be in the middle of the camera view. I then took an average “color” around the central pixel (20 pixels each direction) and converted it to HSV. Then I found the rest of the object within range</p>
+<p>+/- 50 hue<br>
++/- 70 saturation<br>
++/- 70 value</p>
+<p><img src="https://lh4.googleusercontent.com/AfeFRbkElLWNl-60UGwghvsgHlee8h95OVtknLp9Msc85ZvtoY0zghIaAU7VmvPimkd3Srj1Voe9pv0b9jlY64k5OBe-qGWOvOflW2Ug1g17-sqPoBCrHEJoC1bh93qIISqSqbZ3" alt=""></p>
+<p>Then I applied closing morphological operation (dilation followed by erosion 5 times)  to fill up the gaps and make the segmentation smoother. Next, I used openCV to detect contours and selected the one with the biggest area containing the central pixel.</p>
+<p>Then I extracted the bounding box given the contour, cropped out the object and downscaled it to 28x28.</p>
+<p>The major drawback of this approach is the fact that it expects somewhat uni-color objects.</p>
+<p><img src="https://lh6.googleusercontent.com/wxkQxqwWbNm7XA9DXofZTsyZj63Owt86iSayW5Msyqp0eeao1DQdjOoR8yh0CPk-0UH6T8UYoNtAlOz3paw7VPvvAO7wnGJKq8G6tgrNIZmtVpqLiCqUfOmOj_HhYsmodZwBg9wG" alt=""></p>
+</div>
+</body>
+
+</html>
