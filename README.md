@@ -24,6 +24,8 @@ Link to [PDF summary](https://github.com/JakubCzerny/fashion-mnist-assignment/bl
 Link to [notebook for training](https://github.com/JakubCzerny/fashion-mnist-assignment/blob/master/my_code/training.ipynb)
 
 Run life demo:
+
 `cd` to /fashion-mnist-assignment/my_code 
+
 run `python camera.py`
 
